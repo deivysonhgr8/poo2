@@ -196,7 +196,6 @@ class Escola:
         novo_funcionario = Funcionario(nome, idade, cargo, tipo_vinculo, escolaridade)
         self._funcionarios.append(novo_funcionario)
 
-
     def buscar_aluno(self, termo):
         encontrados = [a for a in self._alunos if termo.lower() in a.nome.lower() or str(termo) == str(a.matricula)]
         return encontrados

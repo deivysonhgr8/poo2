@@ -5,7 +5,6 @@ from excecoes import (
     MatriculaJaExisteError,
     PessoaJaExisteError,
     DadosNaoEncontradosError,
-    PessoaNaoEncontradaError, # Importa a nova exceção
 )
 import pandas as pd
 import time
@@ -28,7 +27,7 @@ st.title(f'Sistema de Gerenciamento da Escola {st.session_state.escola.nome_esco
 # Sidebar para navegação
 st.sidebar.title('Menu')
 opcao = st.sidebar.radio('Escolha uma opção:', 
-                         ['Cadastrar', 'Listar/Buscar', 'Análises Gráficas', 'Excluir']) # 'Excluir' adicionado
+                         ['Cadastrar', 'Listar/Buscar', 'Análises Gráficas']) # 'Demonstração de Conceitos' removido
 
 if opcao == 'Cadastrar':
     st.header('Cadastramento')
@@ -115,7 +114,7 @@ elif opcao == 'Listar/Buscar':
             if encontrados:
                 for i, funcionario in enumerate(encontrados, 1):
                     st.markdown(f"---")
-                    st.markdown(f"**{i}.** {funcionario.exibir_informacoes()}")
+                    st.markdown(f"**{i}..** {funcionario.exibir_informacoes()}")
             else:
                 st.info('Nenhum funcionário encontrado.')
         else:
@@ -146,7 +145,7 @@ elif opcao == 'Análises Gráficas':
     st.subheader('Gráfico de Alunos por Série')
     if st.session_state.escola.alunos:
         df_alunos = st.session_state.escola.gerar_dataframe_alunos()
-        series_order = ['6º ano', '7º ano', '8º ano', '9º ano', '1ª série', '2ª série', '3ª série']
+        series_order = ['6º ano', '7º ano', '8º ano', '9º ano', '1ª série', '2ª série', '3ª série', ]
         
         series_count = df_alunos['Série'].value_counts().reindex(series_order, fill_value=0)
         

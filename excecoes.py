@@ -13,4 +13,3 @@ class PessoaJaExisteError(ValueError):
 class DadosNaoEncontradosError(Exception):
     """Exceção levantada quando os arquivos de dados não podem ser carregados."""
     pass
-
