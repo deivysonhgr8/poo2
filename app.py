@@ -5,6 +5,7 @@ from excecoes import (
     MatriculaJaExisteError,
     PessoaJaExisteError,
     DadosNaoEncontradosError,
+    PessoaNaoEncontradaError, # Importa a nova exceção
 )
 import pandas as pd
 import time
@@ -27,7 +28,7 @@ st.title(f'Sistema de Gerenciamento da Escola {st.session_state.escola.nome_esco
 # Sidebar para navegação
 st.sidebar.title('Menu')
 opcao = st.sidebar.radio('Escolha uma opção:', 
-                         ['Cadastrar', 'Listar/Buscar', 'Análises Gráficas']) # 'Demonstração de Conceitos' removido
+                         ['Cadastrar', 'Listar/Buscar', 'Análises Gráficas', 'Excluir']) # 'Excluir' adicionado
 
 if opcao == 'Cadastrar':
     st.header('Cadastramento')
@@ -172,3 +173,68 @@ elif opcao == 'Análises Gráficas':
     else:
         st.info("Nenhum funcionário cadastrado para gerar os gráficos.")
 
+elif opcao == 'Excluir':
+    st.header('Excluir Aluno ou Funcionário')
+    tipo_exclusao = st.radio('O que você deseja excluir?', ['Aluno', 'Funcionário'])
+
+    if tipo_exclusao == 'Aluno':
+        st.subheader('Excluir Aluno')
+        termo_exclusao_aluno = st.text_input('Digite o Nome ou Matrícula do aluno a ser excluído:', key='excluir_aluno_termo')
+        
+        if st.button('Buscar Aluno para Excluir'):
+            alunos_encontrados = st.session_state.escola.buscar_aluno(termo_exclusao_aluno)
+            if alunos_encontrados:
+                if len(alunos_encontrados) > 1:
+                    st.warning("Múltiplos alunos encontrados com o termo. Por favor, seja mais específico ou use a matrícula.")
+                    for i, aluno in enumerate(alunos_encontrados, 1):
+                        st.markdown(f"---")
+                        st.markdown(f"**{i}.** {aluno.exibir_informacoes()}")
+                else:
+                    aluno_para_excluir = alunos_encontrados[0]
+                    st.warning(f"Tem certeza que deseja excluir o aluno: {aluno_para_excluir.nome} (Matrícula: {aluno_para_excluir.matricula})?")
+                    if st.button('Confirmar Exclusão do Aluno', key='confirm_excluir_aluno'):
+                        try:
+                            sucesso, mensagem = st.session_state.escola.excluir_aluno(termo_exclusao_aluno)
+                            if sucesso:
+                                st.success(mensagem)
+                                st.session_state.escola.salvar_dados() # Garante que as mudanças são salvas
+                                #st.experimental_rerun() # Opcional: recarrega a página para atualizar as listas
+                            else:
+                                st.error(mensagem) # Esta linha talvez não seja necessária com exceções
+                        except PessoaNaoEncontradaError as e:
+                            st.error(f"Erro na exclusão: {e}")
+                        except Exception as e:
+                            st.error(f"Ocorreu um erro inesperado: {e}")
+            else:
+                st.info('Nenhum aluno encontrado com o termo fornecido.')
+
+    else: # tipo_exclusao == 'Funcionário'
+        st.subheader('Excluir Funcionário')
+        termo_exclusao_func = st.text_input('Digite o Nome do funcionário a ser excluído:', key='excluir_func_termo')
+        
+        if st.button('Buscar Funcionário para Excluir'):
+            funcionarios_encontrados = st.session_state.escola.buscar_funcionario(termo_exclusao_func)
+            if funcionarios_encontrados:
+                if len(funcionarios_encontrados) > 1:
+                    st.warning("Múltiplos funcionários encontrados com o termo. Por favor, seja mais específico.")
+                    for i, func in enumerate(funcionarios_encontrados, 1):
+                        st.markdown(f"---")
+                        st.markdown(f"**{i}.** {func.exibir_informacoes()}")
+                else:
+                    funcionario_para_excluir = funcionarios_encontrados[0]
+                    st.warning(f"Tem certeza que deseja excluir o funcionário: {funcionario_para_excluir.nome} (Cargo: {funcionario_para_excluir.cargo})?")
+                    if st.button('Confirmar Exclusão do Funcionário', key='confirm_excluir_func'):
+                        try:
+                            sucesso, mensagem = st.session_state.escola.excluir_funcionario(termo_exclusao_func)
+                            if sucesso:
+                                st.success(mensagem)
+                                st.session_state.escola.salvar_dados() # Garante que as mudanças são salvas
+                                #st.experimental_rerun() # Opcional: recarrega a página para atualizar as listas
+                            else:
+                                st.error(mensagem) # Esta linha talvez não seja necessária com exceções
+                        except PessoaNaoEncontradaError as e:
+                            st.error(f"Erro na exclusão: {e}")
+                        except Exception as e:
+                            st.error(f"Ocorreu um erro inesperado: {e}")
+            else:
+                st.info('Nenhum funcionário encontrado com o termo fornecido.')

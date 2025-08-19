@@ -13,3 +13,7 @@ class PessoaJaExisteError(ValueError):
 class DadosNaoEncontradosError(Exception):
     """Exceção levantada quando os arquivos de dados não podem ser carregados."""
     pass
+
+class PessoaNaoEncontradaError(Exception):
+    """Exceção levantada quando uma pessoa não é encontrada para exclusão."""
+    pass

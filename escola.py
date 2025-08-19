@@ -9,10 +9,12 @@ from excecoes import (
     MatriculaJaExisteError,
     PessoaJaExisteError,
     DadosNaoEncontradosError,
+    PessoaNaoEncontradaError, # Nova exceção importada
 )
 
 # Decorador para logar o tempo de execução de um método
 def log_tempo_execucao(func):
+    """Um decorador que loga o tempo de execução de uma função."""
     def wrapper(*args, **kwargs):
         inicio = time.time()
         resultado = func(*args, **kwargs)
@@ -21,7 +23,7 @@ def log_tempo_execucao(func):
         return resultado
     return wrapper
 
-# Interface IPessoa define um contrato 
+# Interface IPessoa define um contrato
 class IPessoa(ABC):
     @abstractmethod
     def exibir_informacoes(self):
@@ -60,7 +62,7 @@ class Aluno(Pessoa):
     def serie(self):
         return self._serie
 
-    # Polimorfismo: sobrescrita do método 
+    # Polimorfismo: sobrescrita do método
     def exibir_informacoes(self):
         return (
             f"**Aluno**\n"
@@ -89,7 +91,7 @@ class Funcionario(Pessoa):
     def escolaridade(self):
         return self._escolaridade
 
-    # Polimorfismo: sobrescrita do método 
+    # Polimorfismo: sobrescrita do método
     def exibir_informacoes(self):
         return (
             f"**Funcionário**\n"
@@ -99,7 +101,7 @@ class Funcionario(Pessoa):
             f"Escolaridade: {self.escolaridade}"
         )
 
-# Composição: a classe Turma é composta por (tem uma) lista de alunos 
+# Composição: a classe Turma é composta por (tem uma) lista de alunos
 class Turma:
     def __init__(self, nome_turma, serie):
         self.nome_turma = nome_turma
@@ -159,7 +161,7 @@ class GerenciadorArquivos:
         except Exception as e:
             raise DadosNaoEncontradosError(f"Erro ao carregar dados: {e}")
 
-
+# Classe Escola adaptada para o Streamlit
 class Escola:
     def __init__(self, nome_escola, gerenciador_arquivos):
         self.nome_escola = nome_escola
@@ -176,7 +178,7 @@ class Escola:
         return self._funcionarios
 
     def cadastrar_aluno(self, nome, idade, matricula, serie):
-        # Lançamento de exceções personalizadas para melhor tratamento de erros 
+        # Lançamento de exceções personalizadas para melhor tratamento de erros
         if len(str(matricula)) != 8:
             raise MatriculaInvalidaError('A matrícula deve ter exatamente 8 dígitos.')
         if any(aluno.matricula == matricula for aluno in self._alunos):
@@ -194,6 +196,39 @@ class Escola:
         
         novo_funcionario = Funcionario(nome, idade, cargo, tipo_vinculo, escolaridade)
         self._funcionarios.append(novo_funcionario)
+
+    # NOVO MÉTODO: Excluir Aluno
+    def excluir_aluno(self, termo):
+        # Busca o aluno pelo nome (case-insensitive) ou matrícula
+        aluno_encontrado = None
+        for aluno in self._alunos:
+            if termo.lower() == aluno.nome.lower() or str(termo) == str(aluno.matricula):
+                aluno_encontrado = aluno
+                break
+        
+        if aluno_encontrado:
+            self._alunos.remove(aluno_encontrado)
+            self.salvar_dados() # Salva as alterações após a exclusão
+            return True, f"Aluno '{aluno_encontrado.nome}' com matrícula '{aluno_encontrado.matricula}' excluído com sucesso."
+        else:
+            raise PessoaNaoEncontradaError(f"Aluno com termo '{termo}' não encontrado.")
+
+    # NOVO MÉTODO: Excluir Funcionário
+    def excluir_funcionario(self, termo):
+        # Busca o funcionário pelo nome (case-insensitive)
+        funcionario_encontrado = None
+        for funcionario in self._funcionarios:
+            if termo.lower() == funcionario.nome.lower():
+                funcionario_encontrado = funcionario
+                break
+        
+        if funcionario_encontrado:
+            self._funcionarios.remove(funcionario_encontrado)
+            self.salvar_dados() # Salva as alterações após a exclusão
+            return True, f"Funcionário '{funcionario_encontrado.nome}' excluído com sucesso."
+        else:
+            raise PessoaNaoEncontradaError(f"Funcionário com termo '{termo}' não encontrado.")
+
 
     def buscar_aluno(self, termo):
         encontrados = [a for a in self._alunos if termo.lower() in a.nome.lower() or str(termo) == str(a.matricula)]
@@ -219,6 +254,7 @@ class Escola:
     def carregar_dados(self):
         self._alunos, self._funcionarios = self.gerenciador_arquivos.carregar_dados()
 
+    # Exemplo de Polimorfismo: método que exibe informações de qualquer pessoa
     def exibir_informacoes_de_pessoas(self, lista_pessoas):
         if not lista_pessoas:
             return "Nenhuma pessoa para exibir."
@@ -257,7 +293,7 @@ def simular_dados(escola, num_alunos=100, num_funcionarios=100):
         except (MatriculaInvalidaError, MatriculaJaExisteError, PessoaJaExisteError) as e:
             print(f"Erro ao simular aluno: {e}")
 
-    nome_coordenador = f"erick {random.choice(sobrenomes_comuns)}"
+    nome_coordenador = f"Maria {random.choice(sobrenomes_comuns)}"
     idade_coordenador = random.randint(30, 60)
     escolaridade_coordenador = random.choice(['Ensino superior completo', 'Mestrado', 'Doutorado'])
     try:
