@@ -13,7 +13,6 @@ from excecoes import (
 
 # Decorador para logar o tempo de execução de um método
 def log_tempo_execucao(func):
-    """Um decorador que loga o tempo de execução de uma função."""
     def wrapper(*args, **kwargs):
         inicio = time.time()
         resultado = func(*args, **kwargs)
@@ -160,7 +159,7 @@ class GerenciadorArquivos:
         except Exception as e:
             raise DadosNaoEncontradosError(f"Erro ao carregar dados: {e}")
 
-# Classe Escola adaptada para o Streamlit
+
 class Escola:
     def __init__(self, nome_escola, gerenciador_arquivos):
         self.nome_escola = nome_escola
@@ -220,7 +219,6 @@ class Escola:
     def carregar_dados(self):
         self._alunos, self._funcionarios = self.gerenciador_arquivos.carregar_dados()
 
-    # Exemplo de Polimorfismo: método que exibe informações de qualquer pessoa 
     def exibir_informacoes_de_pessoas(self, lista_pessoas):
         if not lista_pessoas:
             return "Nenhuma pessoa para exibir."
@@ -259,7 +257,7 @@ def simular_dados(escola, num_alunos=100, num_funcionarios=100):
         except (MatriculaInvalidaError, MatriculaJaExisteError, PessoaJaExisteError) as e:
             print(f"Erro ao simular aluno: {e}")
 
-    nome_coordenador = f"Maria {random.choice(sobrenomes_comuns)}"
+    nome_coordenador = f"erick {random.choice(sobrenomes_comuns)}"
     idade_coordenador = random.randint(30, 60)
     escolaridade_coordenador = random.choice(['Ensino superior completo', 'Mestrado', 'Doutorado'])
     try:

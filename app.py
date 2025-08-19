@@ -27,7 +27,7 @@ st.title(f'Sistema de Gerenciamento da Escola {st.session_state.escola.nome_esco
 # Sidebar para navegação
 st.sidebar.title('Menu')
 opcao = st.sidebar.radio('Escolha uma opção:', 
-                         ['Cadastrar', 'Listar/Buscar', 'Análises Gráficas', 'Demonstração de Conceitos'])
+                         ['Cadastrar', 'Listar/Buscar', 'Análises Gráficas']) # 'Demonstração de Conceitos' removido
 
 if opcao == 'Cadastrar':
     st.header('Cadastramento')
@@ -141,7 +141,7 @@ elif opcao == 'Análises Gráficas':
     else:
         st.info("Não há dados suficientes para gerar o gráfico de alunos e funcionários.")
 
-    # Gráfico de Alunos por Série (agora ordenado)
+    # Gráfico de Alunos por Série 
     st.subheader('Gráfico de Alunos por Série')
     if st.session_state.escola.alunos:
         df_alunos = st.session_state.escola.gerar_dataframe_alunos()
@@ -153,7 +153,7 @@ elif opcao == 'Análises Gráficas':
     else:
         st.info("Nenhum aluno cadastrado para gerar o gráfico por série.")
 
-    # --- Novos gráficos para funcionários ---
+    # Novos gráficos para funcionários 
     st.subheader('Análises de Funcionários')
     if st.session_state.escola.funcionarios:
         df_funcionarios = st.session_state.escola.gerar_dataframe_funcionarios()
@@ -172,168 +172,3 @@ elif opcao == 'Análises Gráficas':
     else:
         st.info("Nenhum funcionário cadastrado para gerar os gráficos.")
 
-elif opcao == 'Demonstração de Conceitos':
-    st.header('Demonstração dos Conceitos de POO')
-
-    st.markdown("Nesta seção, exploramos como os conceitos de Programação Orientada a Objetos foram aplicados no código da escola de forma prática.")
-    st.markdown("---")
-
-    # EXPANDER: HERANÇA E COMPOSIÇÃO
-    with st.expander("Herança e Composição"):
-        st.subheader("Herança: A relação 'É um'")
-        st.markdown(
-            "A **Herança** é um conceito onde uma classe filha (subclasse) herda atributos e métodos de uma classe pai (superclasse). Isso promove a reutilização de código."
-        )
-        st.markdown(
-            "No seu código, a classe `Pessoa` é a superclasse, e as classes `Aluno` e `Funcionario` são as subclasses. Um `Aluno` **é uma** `Pessoa`, e um `Funcionario` **é uma** `Pessoa`."
-        )
-        st.code("""
-# Herança: Pessoa é a superclasse
-class Pessoa(IPessoa):
-    ...
-# Herança: Aluno é uma Pessoa
-class Aluno(Pessoa):
-    ...
-# Herança: Funcionario é uma Pessoa
-class Funcionario(Pessoa):
-    ...
-        """, language="python")
-
-        st.subheader("Composição: A relação 'Tem um'")
-        st.markdown(
-            "A **Composição** é quando uma classe é 'composta' por objetos de outras classes. A classe **'mãe' tem um** objeto de outra classe como um de seus atributos."
-        )
-        st.markdown(
-            "No seu código, a classe `Escola` **tem um** `GerenciadorArquivos` para lidar com a persistência de dados. A classe `Turma` **tem uma** lista de `Alunos`."
-        )
-        st.code("""
-# Composição: a classe Escola 'tem um' GerenciadorArquivos
-class Escola:
-    def __init__(self, nome_escola, gerenciador_arquivos):
-        self.gerenciador_arquivos = gerenciador_arquivos
-        ...
-# Composição: a classe Turma 'tem uma' lista de alunos
-class Turma:
-    def __init__(self, nome_turma, serie):
-        self._alunos = []
-        ...
-        """, language="python")
-        st.markdown("---")
-
-    # EXPANDER: POLIMORFISMO
-    with st.expander("Polimorfismo"):
-        st.subheader("Polimorfismo: O 'múltiplas formas'")
-        st.markdown(
-            "O **Polimorfismo** permite que o mesmo método se comporte de maneira diferente dependendo do objeto que o chama."
-        )
-        st.markdown(
-            "O método `exibir_informacoes()` está presente nas classes `Pessoa`, `Aluno` e `Funcionario`. Na demonstração abaixo, uma função chama esse método em uma lista que contém tanto `Alunos` quanto `Funcionarios`. O polimorfismo garante que o método correto será chamado para cada objeto, produzindo resultados diferentes."
-        )
-        if st.session_state.escola.alunos and st.session_state.escola.funcionarios:
-            st.markdown('A seguir, a função `exibir_informacoes_de_pessoas` chama a implementação correta do método `exibir_informacoes` para cada tipo de objeto:')
-            
-            lista_mista = st.session_state.escola.alunos[:2] + st.session_state.escola.funcionarios[:2]
-            
-            if lista_mista:
-                resultado_demonstracao = st.session_state.escola.exibir_informacoes_de_pessoas(lista_mista)
-                st.code(resultado_demonstracao, language='markdown')
-            else:
-                st.info("Não há alunos ou funcionários suficientes para esta demonstração.")
-        else:
-            st.info("Não há alunos ou funcionários suficientes para esta demonstração.")
-        st.markdown("---")
-
-    # EXPANDER: DECORADORES
-    with st.expander("Decoradores"):
-        st.subheader("Decoradores: Adicionando funcionalidades")
-        st.markdown(
-            "Um **Decorador** é uma função que envolve outra função para estender ou modificar seu comportamento sem alterar o código original. É representado pelo `@`."
-        )
-        st.markdown(
-            "O decorador `@log_tempo_execucao` é usado para medir e exibir o tempo que os métodos `salvar_dados` e `carregar_dados` levam para rodar."
-        )
-        st.code("""
-# Decorador para logar o tempo de execução
-def log_tempo_execucao(func):
-    ...
-    
-class Escola:
-    ...
-    @log_tempo_execucao
-    def salvar_dados(self):
-        ...
-    @log_tempo_execucao
-    def carregar_dados(self):
-        ...
-        """, language="python")
-
-        if st.button('Testar Decorador: Medir tempo de Salvamento'):
-            start_time = time.time()
-            st.session_state.escola.salvar_dados()
-            end_time = time.time()
-            st.success(f"Dados salvos! (Tempo de execução: {end_time - start_time:.4f} segundos)")
-        st.markdown("---")
-
-    # EXPANDER: EXCEÇÕES
-    with st.expander("Exceções"):
-        st.subheader("Exceções: Tratamento de erros")
-        st.markdown(
-            "**Exceções** são uma forma de lidar com erros previsíveis no código de forma controlada. Em vez de retornar um valor de erro, o código 'lança' uma exceção que pode ser 'capturada' por um bloco `try...except`."
-        )
-        st.markdown(
-            "No seu código, as funções de cadastro não retornam mais `False` em caso de erro. Em vez disso, elas **lançam** exceções personalizadas como `MatriculaInvalidaError`, que são **capturadas** no arquivo `app.py` para exibir uma mensagem de erro clara ao usuário, sem travar o programa."
-        )
-        st.code("""
-# No arquivo escola.py
-def cadastrar_aluno(...):
-    if len(str(matricula)) != 8:
-        raise MatriculaInvalidaError('A matrícula deve ter 8 dígitos.')
-    ...
-# No arquivo app.py
-try:
-    st.session_state.escola.cadastrar_aluno(...)
-    st.success('Aluno cadastrado!')
-except MatriculaInvalidaError as e:
-    st.error(f'Erro no cadastro: {e}')
-        """, language="python")
-        st.markdown("---")
-
-    # EXPANDER: INTERFACES
-    with st.expander("Interfaces"):
-        st.subheader("Interfaces: O Contrato")
-        st.markdown(
-            "Uma **Interface** define um contrato: uma classe que implementa essa interface deve obrigatoriamente ter os métodos definidos nela. É como um 'contrato de comportamento'."
-        )
-        st.markdown(
-            "A interface `IPessoa` garante que qualquer classe que a implemente (como `Pessoa`, `Aluno` e `Funcionario`) tenha um método `exibir_informacoes()`. Isso é crucial para o Polimorfismo funcionar corretamente."
-        )
-        st.code("""
-from abc import ABC, abstractmethod
-class IPessoa(ABC): # A classe ABC é usada para criar uma classe abstrata/interface
-    @abstractmethod # Força a implementação do método
-    def exibir_informacoes(self):
-        pass
-        """, language="python")
-        st.markdown("---")
-
-    # EXPANDER: SOLID
-    with st.expander("Princípios SOLID"):
-        st.subheader("Os Cinco Princípios do SOLID")
-        st.markdown(
-            "**SOLID** é um acrônimo para cinco princípios de design de software que ajudam a criar código mais robusto, flexível e fácil de manter."
-        )
-        st.markdown(
-            "1.  **S (SRP - Single Responsibility Principle):** Uma classe deve ter apenas uma responsabilidade. A classe `GerenciadorArquivos` agora tem a única responsabilidade de salvar e carregar dados, separando-a da classe `Escola`."
-        )
-        st.markdown(
-            "2.  **O (OCP - Open/Closed Principle):** As classes devem ser abertas para extensão, mas fechadas para modificação. Sua estrutura de herança permite adicionar novos tipos de pessoas (por exemplo, um `Voluntario`) sem alterar as classes existentes."
-        )
-        st.markdown(
-            "3.  **L (LSP - Liskov Substitution Principle):** Objetos de uma subclasse devem poder ser substituídos por objetos da superclasse sem alterar a correção do programa. O método `exibir_informacoes_de_pessoas` demonstra isso, pois funciona corretamente com objetos `Aluno` e `Funcionario`."
-        )
-        st.markdown(
-            "4.  **I (ISP - Interface Segregation Principle):** Interfaces devem ser pequenas e específicas. A interface `IPessoa` tem apenas um método (`exibir_informacoes`), mantendo-a coesa."
-        )
-        st.markdown(
-            "5.  **D (DIP - Dependency Inversion Principle):** Classes de alto nível não devem depender de classes de baixo nível. Ambas devem depender de abstrações. A classe `Escola` agora depende da abstração (`gerenciador_arquivos`) e não da implementação concreta de como salvar os arquivos."
-        )
